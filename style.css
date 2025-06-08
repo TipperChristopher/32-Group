@@ -1,0 +1,171 @@
+head {
+    background-color: #cccccc;
+}
+
+title {
+    background-color: #cccccc;
+}
+
+section {
+    border-radius: 15px;
+    border: 5px solid #ddd;
+    width: 500px;
+    
+}
+
+body {
+    background-image: url("https://innovationracecars.com.au/wp-content/uploads/2024/08/IRC-Camaro-Body-2024-2-1024x771.jpeg"), url("https://innovationracecars.com.au/wp-content/uploads/2024/08/IRC-Camaro-Body-2024-2-1024x771.jpeg");
+    background-repeat: no-repeat, repeat;
+    background-color: #cccccc;
+}
+
+h1 {
+    background-color: #cccccc;
+}
+
+header {
+    background-color: #cccccc;
+}
+
+footer {
+    background-image: url("https://innovationracecars.com.au/wp-content/uploads/2024/07/IRC-NZ-Round-2-Image-1-1024x575.jpg"), url("https://innovationracecars.com.au/wp-content/uploads/2024/07/IRC-NZ-Round-2-Image-1-1024x575.jpg");
+    background-repeat: repeat;
+    position: absolute;
+    bottom: 0;
+    height: 250px;
+    width: 2000px;
+    font-family: 'Open Sans', sans-serif;
+    padding: 10px;
+}
+
+u {
+    position: static;
+    height: 500px;
+    width: 2000px;
+}
+
+form {
+    border: 3px solid #f1f1f1;
+  }
+
+  input[type=text], input[type=password] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+
+  button {
+    background-color: #04AA6D;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+  }
+  
+  button:hover {
+    opacity: 0.8;
+  }
+  
+  .cancelbtn {
+    width: auto;
+    padding: 10px 18px;
+    background-color: #f44336;
+  }
+
+  .imgcontainer {
+    text-align: center;
+    margin: 24px 0 12px 0;
+  }
+  
+  img.avatar {
+    width: 40%;
+    border-radius: 50%;
+  }
+  
+  .container {
+    padding: 16px;
+  }
+  
+  span.psw {
+    float: right;
+    padding-top: 16px;
+  }
+  
+  @media screen and (max-width: 300px) {
+    span.psw {
+      display: block;
+      float: none;
+    }
+    .cancelbtn {
+      width: 100%;
+    }
+  }
+
+  * {box-sizing: border-box}
+
+  input[type=text], input[type=password] {
+  width: 100%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  display: inline-block;
+  border: none;
+  background: #f1f1f1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+  background-color: #ddd;
+  outline: none;
+}
+
+hr {
+  border: 1px solid #f1f1f1;
+  margin-bottom: 25px;
+}
+
+button {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  opacity: 0.9;
+}
+
+
+button:hover {
+  opacity:1;
+}
+
+.cancelbtn {
+  padding: 14px 20px;
+  background-color: #f44336;
+}
+
+.cancelbtn, .signupbtn {
+  float: left;
+  width: 50%;
+}
+
+.container {
+  padding: 16px;
+}
+
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+@media screen and (max-width: 300px) {
+  .cancelbtn, .signupbtn {
+    width: 100%;
+  }
+}
+
