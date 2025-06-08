@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel = "stylesheet" src="https://www.pyscript.net/releases/2024.10.1/core.css">
+    <script type = "stylesheet" src="https://www.pyscript.net/releases/2024.10.1/core.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div id="app" class="container mx-auto p-4">
+        <!-- Login Section -->
+        <div id="login-section" class="mb-4">
+            <h1 class="text-2xl font-bold mb-4">Admin Login</h1>
+            <div class="bg-white p-4 rounded shadow">
+                <input id="login-username" type="text" placeholder="Username" class="border p-2 mb-2 w-full">
+                <input id="login-password" type="password" placeholder="Password" class="border p-2 mb-2 w-full">
+                <button onclick="login()" class="bg-blue-500 text-white p-2 rounded">Login</button>
+            </div>
+        </div>
+
+        <!-- Register Section -->
+        <div id="register-section" class="mb-4 hidden">
+            <h1 class="text-2xl font-bold mb-4">Register New User</h1>
+            <div class="bg-white p-4 rounded shadow">
+                <input id="register-username" type="text" placeholder="Username" class="border p-2 mb-2 w-full">
+                <input id="register-password" type="password" placeholder="Password" class="border p-2 mb-2 w-full">
+                <button onclick="register()" class="bg-green-500 text-white p-2 rounded">Register</button>
+            </div>
+        </div>
+
+        <!-- Admin Dashboard (visible after login) -->
+        <div id="dashboard" class="hidden">
+            <h1 class="text-2xl font-bold mb-4">Admin Dashboard</h1>
+            <button onclick="logout()" class="bg-red-500 text-white p-2 rounded mb-4">Logout</button>
+
+            <!-- Upload File -->
+            <div class="bg-white p-4 rounded shadow mb-4">
+                <h2 class="text-xl font-semibold mb-2">Upload File</h2>
+                <input id="file-input" type="file" class="mb-2">
+                <button onclick="uploadFile()" class="bg-blue-500 text-white p-2 rounded">Upload</button>
+            </div>
+
+            <!-- User Management -->
+            <div class="bg-white p-4 rounded shadow mb-4">
+                <h2 class="text-xl font-semibold mb-2">Manage Users</h2>
+                <div id="users-list" class="mb-4"></div>
+                <h3 class="text-lg font-semibold mb-2">Update Password</h3>
+                <input id="update-user-id" type="text" placeholder="User ID" class="border p-2 mb-2 w-full">
+                <input id="update-password" type="password" placeholder="New Password" class="border p-2 mb-2 w-full">
+                <button onclick="updateUser()" class="bg-yellow-500 text-white p-2 rounded">Update Password</button>
+            </div>
+
+            <!-- File Management -->
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-2">Manage Files</h2>
+                <div id="files-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:5000'; // Update if backend runs on a different host/port
+        let token = null;
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `p-2 mb-4 rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            messageDiv.textContent = message;
+            document.getElementById('app').prepend(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+
+        async function login() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    token = data.token;
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('register-section').classList.remove('hidden');
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    fetchUsers();
+                    fetchFiles();
+                    showMessage('Login successful');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error logging in', 'error');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('User registered successfully');
+                    fetchUsers();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error registering user', 'error');
+            }
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('file-input');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            try {
+                const response = await fetch(`${API_URL}/upload_file`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('File uploaded successfully');
+                    fetchFiles();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error uploading file', 'error');
+            }
+        }
+
+        async function fetchUsers() {
+            try {
+                const response = await fetch(`${API_URL}/users`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const usersList = document.getElementById('users-list');
+                    usersList.innerHTML = '';
+                    data.users.forEach(user => {
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'flex justify-between items-center p-2 border-b';
+                        userDiv.innerHTML = `
+                            <span>User ID: ${Object.values(user)[0]}</span>
+                            <button onclick="deleteUser('${Object.values(user)[0]}')" class="bg-red-500 text-white p-1 rounded">Delete</button>
+                        `;
+                        usersList.appendChild(userDiv);
+                    });
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error fetching users', 'error');
+            }
+        }
+
+        async function fetchFiles() {
+            try {
+                const response = await fetch(`${API_URL}/files`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const filesList = document.getElementById('files-list');
+                    filesList.innerHTML = '';
+                    data.files.forEach(file => {
+                        const fileDiv = document.createElement('div');
+                        fileDiv.className = 'flex justify-between items-center p-2 border-b';
+                        fileDiv.innerHTML = `
+                            <span>File: ${file.filename} (ID: ${file.file_id})</span>
+                            <button onclick="deleteFile('${file.file_id}')" class="bg-red-500 text-white p-1 rounded">Delete</button>
+                        `;
+                        filesList.appendChild(fileDiv);
+                    });
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error fetching files', 'error');
+            }
+        }
+
+        async function updateUser() {
+            const userId = document.getElementById('update-user-id').value;
+            const password = document.getElementById('update-password').value;
+            try {
+                const response = await fetch(`${API_URL}/user/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('Password updated successfully');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error updating user', 'error');
+            }
+        }
+
+        async function deleteUser(userId) {
+            try {
+                const response = await fetch(`${API_URL}/user/${userId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('User deleted successfully');
+                    fetchUsers();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting user', 'error');
+            }
+        }
+
+        async function deleteFile(fileId) {
+            try {
+                const response = await fetch(`${API_URL}/file/${fileId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showMessage('File deleted successfully');
+                    fetchFiles();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error deleting file', 'error');
+            }
+        }
+
+        function logout() {
+            token = null;
+            document.getElementById('login-section').classList.remove('hidden');
+            document.getElementById('register-section').classList.add('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            showMessage('Logged out successfully');
+        }
+    </script>
+</body>
+</html>
