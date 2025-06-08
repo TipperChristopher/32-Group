@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="style.css">
+    <link rel = "stylesheet" src="https://www.pyscript.net/releases/2024.10.1/core.css">
+    <script type = "stylesheet" src="https://www.pyscript.net/releases/2024.10.1/core.js"></script>
+    <title>InnovationRaceCars Homepage</title>
+    <section>
+    <img src="https://innovationracecars.com.au/wp-content/uploads/2023/10/IRC-white.png" width="500" height="250" alt="IRC Logo" />
+    </section>
+</head>
+<body>
+    <h1>Welcome to the IRC GT race cars database</h1>
+    <p>If you are a race team and looking to purchase a race team, contact IRC GT on this <a href="https://innovationracecars.com.au" >link</a></p>
+    <p></p>
+    <header>
+    <a href="Log-in.html" >Log In</a>
+    <a href="Register.html" >Register</a>
+    </header>
+        <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full text-center">
+        <h1 class="text-2xl font-bold mb-4 text-gray-800">Logout</h1>
+        <p class="mb-6 text-gray-600">Are you sure you want to log out?</p>
+        <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200">Confirm Logout</button>
+        <a href="/Homepage.html" class="block mt-4 text-blue-500 hover:underline">Return to Dashboard</a>
+    </div>
+    <script>
+        const API_URL = 'http://127.0.0.1:5000'; // Update if backend runs on a different host/port
+
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `p-2 mt-4 rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+            setTimeout(() => messageDiv.remove(), 3000);
+        }
+
+        async function logout() {
+            const token = localStorage.getItem('token'); // Assuming token is stored in localStorage
+            if (!token) {
+                showMessage('No active session found', 'error');
+                setTimeout(() => window.location.href = '/index.html', 1000);
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/logout`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.removeItem('token'); // Clear token from localStorage
+                    showMessage('Logged out successfully');
+                    setTimeout(() => window.location.href = '/index.html', 1000);
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('Error logging out', 'error');
+            }
+        }
+    </script>
+    <footer>
+    <u>
+        <a href="Log-in.html" >Log In</a>
+        <a href="Register.html" >Register</a>
+        <p>Copyright 2025 IRC Innovation Race Cars</p>
+    </u>    
+    </footer>
+</body>
+</html>
